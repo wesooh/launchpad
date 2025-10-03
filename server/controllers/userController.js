@@ -1,49 +1,27 @@
-const User = require("../models/userModel");
-const generateToken = require("../utils/generateToken");
+// controllers/userController.js
+const User = require('../models/userModel');
 
-// POST /api/users/signup
-const registerUser = async (req, res) => {
+// SIGNUP
+const signupUser = async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
 
-  try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+  const existingUser = await User.findOne({ email });
+  if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-    const user = await User.create({ email, password });
-    if (user) {
-      res.status(201).json({
-        _id: user.id,
-        email: user.email,
-        token: generateToken(user._id),
-      });
-    } else {
-      res.status(400).json({ message: "Invalid user data" });
-    }
-  } catch (error) {
-    res.status(500).json({ message: "Error creating user" });
-  }
+  const user = await User.create({ email, password });
+  res.status(201).json({ _id: user._id, email: user.email });
 };
 
-// POST /api/users/login
+// LOGIN
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
 
-  try {
-    const user = await User.findOne({ email });
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user.id,
-        email: user.email,
-        token: generateToken(user._id),
-      });
-    } else {
-      res.status(401).json({ message: "Invalid email or password" });
-    }
-  } catch (error) {
-    res.status(500).json({ message: "Error logging in" });
-  }
+  const user = await User.findOne({ email });
+  if (!user || user.password !== password) return res.status(401).json({ message: 'Invalid credentials' });
+
+  res.json({ _id: user._id, email: user.email });
 };
 
-module.exports = { registerUser, loginUser };
+module.exports = { signupUser, loginUser }; // ✅ must be object with functions
