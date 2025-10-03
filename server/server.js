@@ -22,6 +22,10 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Lockin Launchpad backend running' });
 });
 
+app.get('/', (req, res) => {
+    res.json(' message: API running');
+});
+
 // Error handling
 app.use(notFound);
 app.use(errorHandler);
