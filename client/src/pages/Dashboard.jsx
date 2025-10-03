@@ -8,7 +8,8 @@ function Dashboard() {
   // Fetch tasks
   const fetchTasks = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/tasks");
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/login`);
+
       if (!res.ok) throw new Error("Failed to fetch tasks");
       const data = await res.json();
       setTasks(data);
